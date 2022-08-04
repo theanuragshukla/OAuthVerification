@@ -1,14 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title></title>
-	<link rel="stylesheet" href="/static/css/global.css">
-	<link rel="stylesheet" href="/static/css/home.css">
-</head>
-<body>
-	<div class="super">
-		{{msg}}	
-	</div>
-</body>
-</html>
+<div class="form-wrapper">
+		{{#if login}}
+		{{> login}}
+		{{else}}
+		{{> signup}}
+		{{/if}}
+</div>
+
