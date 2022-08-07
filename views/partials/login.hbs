@@ -1,8 +1,9 @@
   <h1>Login</h1>
+  <div class="error"></div>
   <form>
     <div class="form-item">
-      <label for="user"></label>
-      <input type="text" name="user" id='user' required="required" placeholder="Username" autocomplete='false'></input>
+      <label for="email"></label>
+      <input type="email" name="email" id='email' required="required" placeholder="Email" autocomplete='false'></input>
     </div>
     <div class="form-item">
       <label for="pass"></label>
@@ -10,7 +11,7 @@
     </div>
 
     <div class="button-panel">
-      <input type="button" class="button" onclick="" title="Sign In" value="Sign In"></input>
+      <input type="button" class="button" onclick="login(this)" title="Sign In" value="Sign In"></input>
     </div>
   </form>
   <div class="form-footer">

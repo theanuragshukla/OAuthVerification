@@ -1,44 +1,16 @@
-const signupBtn = document.getElementById("signup")
-const btn1 = document.getElementById("btnLeft")
-const btn2 = document.getElementById("btnRight")
+const signupBtn = document.getElementById("signupBtn")
 const fname  = document.getElementById('fname')
 const lname  = document.getElementById('lname')
 const email = document.getElementById('email')
-const user = document.getElementById('user')
 const pass = document.getElementById('pass')
 const error = document.getElementById('error')
 
-async function signup(){
-	const res = validUser(user.value) 
-	error.innerHTML=res ? "" : "enter a valid username"
-	validateStatus(res)
-	if(!res)return
-	var dupUser =await fetch('/checkDup', {
-		method: 'POST',
-		headers: {
-				'Accept': 'application/json, text/plain, */*',
-				'Content-Type': 'application/json'
-			},
-			
-		crossdomain: true,
-		withCredentials:'include',
-		body:JSON.stringify({email:false,data:user.value})
-	})
-		.then(response => response.json())
-		dupUser=!dupUser.status
-
-	if(dupUser){
-		error.innerHTML="username already in use"
-		validateStatus(false)
-		return 
-	}
-
+const signup=async()=>{
 	const data = {
 		fname:fname.value,
 		lname:lname.value,
 		email:email.value,
 		pass:pass.value,
-		user:user.value
 	}
 	if(await checkAll(data)){
 		fetch('/add-new-user', {
@@ -52,7 +24,6 @@ async function signup(){
 				lname:lname.value,
 				email:email.value,
 				pass:pass.value,
-				"user":user.value
 			})
 		})
 			.then(res=>res.json())
@@ -71,76 +42,28 @@ async function signup(){
 		alert("error")
 	}
 
-	
-}
-const arr = [1,2,3]
-var pos = 1
-const inpDiv1 = document.getElementById("inpDiv1");
-const inpDiv2 = document.getElementById("inpDiv2");
-const inpDiv3 = document.getElementById("inpDiv3");
-inpDiv3.style.display="none"
-inpDiv2.style.display="none"
 
+}
 const validateOnSpot =async (state) => {
 	if(state==1){
-		const res = chkName(fname.value)
+		const res = checkName(fname.value)
 		error.innerHTML=res ? "" : "enter a valid name"
 		validateStatus(res)
 		return res
 	}
 	else if(state==2){
-		const resEmail = chkEmail(email.value)
-		const resPass = chkPass(pass.value)
-		if(!resEmail){
-			error.innerHTML="enter a valid email"
-			validateStatus(resEmail)
-			return resEmail
-		}
-		var dupEmail=await fetch('/checkDup', {
-			method: 'POST',
-			crossdomain: true,
-			withCredentials:'include',
-			headers: {
-				'Accept': 'application/json, text/plain, */*',
-				'Content-Type': 'application/json'
-			},
-			body:JSON.stringify({email:true,data:email.value})
-		}).then(response => response.json())
-		dupEmail=!dupEmail.status
-		if(dupEmail){
-			error.innerHTML="email already in use"
-			validateStatus(false)
-			return false
-		}
-
+		const resEmail = checkPass(email.value)
+		error.innerHTML="enter a valid email"
+		validateStatus(resEmail)
+		return resEmail
+	}else if(state==3){
+		const resPass = checkPass(pass.value)
 		error.innerHTML=resPass ? "" : "enter a valid password"
 		validateStatus(resPass)
 		return resPass
-
-
 	}
 }
 
-async function slideInp(dir){
-	if(dir==-1){
-		pos=(pos==1)?pos:pos-1
-	}else if(dir==1){
-		if(! await validateOnSpot(pos)){
-			return
-		}
-		pos=(pos==3)?pos:pos+1
-	}
-	signupBtn.style.display=pos==3 ? "initial" : "none";
-	btn1.style.display=pos==1 ? "none" : "initial";
-	btn2.style.display=pos==3 ? "none" : "initial";
-	arr.forEach((idx)=>{
-		if(idx==pos){
-			window[`inpDiv${idx}`].style.display="flex"
-		}else{
-			window[`inpDiv${idx}`].style.display="none"
-		}
-	})
-}
 window.onload=()=>{
 	const verify =async ()=>{
 		await fetch('/checkAuth', {
@@ -153,7 +76,7 @@ window.onload=()=>{
 	}
 	const manageAuth=(val)=>{
 		if(val.result){
-			location.href='/dashboard'
+			location.href='/'
 		}
 	}
 	verify()

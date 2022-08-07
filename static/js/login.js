@@ -1,13 +1,13 @@
 const error = document.getElementById('error')
 
 function login(e){
-	e.innerText="wait..."
-	const user = document.getElementById('user')
+	e.value="wait..."
+	const email = document.getElementById('email')
 	const pass = document.getElementById('pass')
 
 	const data = {
 		pass:pass.value,
-		user:user.value
+		user:email.value
 	}
 
 fetch('/let-me-in', {
@@ -18,7 +18,7 @@ fetch('/let-me-in', {
   },
   body: JSON.stringify( {
 		pass:pass.value,
-		"user":user.value
+		email:email.value
 		})
 })
 	.then(res=>res.json())
@@ -38,7 +38,7 @@ window.onload=()=>{
 	}
 	const manageAuth=(val)=>{
 		if(val.result){
-		location.href=`https://whatsappweird.herokuapp.com/auth/verify?token=${res.token}`
+		location.href=`/`
 		}
 	}
 	verify()
@@ -48,10 +48,10 @@ window.onload=()=>{
 const loginStatus =(res,btn)=>{
 	error.style.display=!res.status ? "initial" :"none"
 	if(res.status){
-		btn.innerText="redirecting..."
-		location.href=`https://whatsappweird.herokuapp.com/auth/verify?token=${res.token}`
+		btn.value="redirecting..."
+		location.href=`/`
 	}
 	else{
-		btn.innerText="try again"
+		btn.value="try again"
 	}
 }
