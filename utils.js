@@ -30,6 +30,10 @@ const checkEmail=(str)=>{
         return (checklen(8, 100, str) && validEmail(str) ? true : false )
 }
 
+const checkUser=(str)=>{
+        const valid = /^[a-z0-9_\.]+$/.test(str);
+        return (valid && checklen(8, 20, str) ? true : false);
+}
 const checkPass=(str)=>{
         var regularExpression = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
         if(regularExpression.test(str)){
@@ -43,10 +47,20 @@ const checkAll=(arr)=>{
         const passError = !checkPass(arr.pass)
         const nameError = !checkName(arr.fname)
         const emailError = !checkEmail(arr.email)
-        if(passError || nameError || emailError){
+        const userError = !checkUser(arr.user)
+        if(passError || nameError || emailError || userError){
                 return false
         }else{
                 return true
         }
 }
 
+module.exports={
+	checkUser,
+	checkEmail,
+	checkName,
+	checkPass,
+	checkAll,
+	checklen,
+	checkSpaces
+}

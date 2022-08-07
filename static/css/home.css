@@ -81,3 +81,6 @@ form {
 .form-footer a:hover {
   border-bottom: 1px dotted #8c8c8c;
 }
+.form-item>.error {
+	width: 100% !important;
+}

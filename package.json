@@ -19,9 +19,12 @@
 	},
 	"homepage": "https://github.com/theanuragshukla/OAuthVerification#readme",
 	"dependencies": {
+		"bcryptjs": "^2.4.3",
+		"cookie-parser": "^1.4.6",
 		"dotenv": "^16.0.1",
 		"express": "^4.18.1",
 		"express-handlebars": "^6.0.6",
+		"jsonwebtoken": "^8.5.1",
 		"pg": "^8.7.3"
 	},
 	"devDependencies": {
