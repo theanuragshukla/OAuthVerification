@@ -46,7 +46,6 @@ window.onload=()=>{
 }
 
 const loginStatus =(res,btn)=>{
-	error.style.display=!res.status ? "initial" :"none"
 	if(res.status){
 		btn.value="redirecting..."
 		location.href=`/`

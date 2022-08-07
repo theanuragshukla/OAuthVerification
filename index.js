@@ -6,15 +6,36 @@ const port = process.env.PORT || 3000;
 const {engine} = require('express-handlebars')
 const cookieParser=require('cookie-parser')
 const crypto = require('crypto')
+const {randomUUID:uuid} = require('crypto')
 const db = require("./config/database")
 const bcrypt = require("bcryptjs")
 const saltRounds=10
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_SECRET_KEY
-
+const excludedRoutes = ['/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth']
 app.use('/static',express.static(__dirname+'/static'));
-app.set('view engine', 'hbs');
 app.use(cookieParser());
+app.use(async (req, res, next) => {
+	const url = req.originalUrl
+	if(excludedRoutes.includes(url)){
+		next()
+	}else{
+		const token = req.cookies.token
+		const authData = await verifyToken(token)
+		if (!authData.result){
+			if(req.method=="GET")
+				res.redirect(`http://${req.header('host')}`)
+			else
+				res.status(401).json({status:false,msg:"unauthorised access"})
+			return
+		}
+		else{
+			req.usrProf = authData.data
+			next()
+		}
+	}})
+
+app.set('view engine', 'hbs');
 app.use(express.json());                                                                           app.use(express.urlencoded({
 	extended: true
 }));
@@ -25,8 +46,8 @@ app.engine('hbs', engine({
 	partialsDir: __dirname + '/views/partials/'
 }));
 
-const generateUid = () => {
-	const uid=crypto.randomBytes(16).toString('hex')
+const generateUid = (len=16) => {
+	const uid=crypto.randomBytes(len).toString('hex')
 	return uid
 }
 
@@ -38,6 +59,27 @@ app.get('/login',(req,res)=>{
 })
 app.get('/signup',(req,res)=>{
 	res.render('home',{signupin:true,login:false,script:"signup.js"});
+})
+app.post('/create-new-app',async(req,res)=>{
+	const query = `
+	INSERT INTO apps (appname,origin,redirect,uid,appid) 
+	VALUES($1,$2,$3,$4,$5)
+	RETURNING *;
+	`;
+	const appid=generateUid(16)
+	const values = [req.body.name,req.body.origin,req.body.redirect,req.usrProf.uid,appid];
+	const { rows } = await db.query(query, values)
+	const secretQuery = `
+	INSERT INTO appauth (appid,client_id,client_secret) 
+	VALUES($1,$2,$3)
+	RETURNING *;
+	`;
+	const secretValues = [appid,uuid(),generateUid(32)];
+	const { secretRows } = await db.query(secretQuery, secretValues)
+	console.log(rows)
+	console.log(appid)
+	console.log(secretRows)
+	res.status(200).json({status:true})
 })
 app.post("/let-me-in",async (req,res)=>{
 	const query = `
