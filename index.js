@@ -12,11 +12,12 @@ const bcrypt = require("bcryptjs")
 const saltRounds=10
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_SECRET_KEY
-const excludedRoutes = ['/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth']
+const excludedRoutes = ['/apps/authorise','/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth']
 app.use('/static',express.static(__dirname+'/static'));
 app.use(cookieParser());
 app.use(async (req, res, next) => {
-	const url = req.originalUrl
+	const url = req.originalUrl.split("?")[0]
+	console.log(url)
 	if(excludedRoutes.includes(url)){
 		next()
 	}else{
@@ -60,6 +61,20 @@ app.get('/login',(req,res)=>{
 app.get('/signup',(req,res)=>{
 	res.render('home',{signupin:true,login:false,script:"signup.js"});
 })
+app.get('/apps/authorise',async (req,res)=>{
+	const data = req.query
+	const token = req.cookies.token
+	const authData = await verifyToken(token)
+	if (!authData.result){
+
+	}
+	else{
+		req.usrProf = authData.data
+
+	}
+
+	res.end('done')
+})
 app.post('/create-new-app',async(req,res)=>{
 	const query = `
 	INSERT INTO apps (appname,origin,redirect,uid,appid) 
@@ -74,11 +89,16 @@ app.post('/create-new-app',async(req,res)=>{
 	VALUES($1,$2,$3)
 	RETURNING *;
 	`;
-	const secretValues = [appid,uuid(),generateUid(32)];
-	const { secretRows } = await db.query(secretQuery, secretValues)
-	console.log(rows)
-	console.log(appid)
-	console.log(secretRows)
+	const client_id=uuid()
+	var client_secret=generateUid(32)
+	console.log(client_id)
+	console.log(client_secret)
+	await bcrypt.hash(client_secret,saltRounds).then(function(hash) {
+		client_secret=hash
+	});
+
+	const secretValues = [appid,client_id,client_secret];
+	const secretRows = await db.query(secretQuery, secretValues)
 	res.status(200).json({status:true})
 })
 app.post("/let-me-in",async (req,res)=>{
