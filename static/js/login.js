@@ -1,5 +1,5 @@
 const error = document.getElementById('error')
-
+let qs,dump
 function login(e){
 	e.value="wait..."
 	const email = document.getElementById('email')
@@ -27,6 +27,8 @@ fetch('/let-me-in', {
 }
 
 window.onload=()=>{
+	 qs = window.location.href.split('?')[1]
+	dump = qs.indexOf('dump=')>0 ? decodeURIComponent(qs.split("dump=")[1].split("&")[0]) : '/'
 	const verify =async ()=>{
 		await fetch('/checkAuth', {
 			method: 'GET',
@@ -34,13 +36,14 @@ window.onload=()=>{
 			withCredentials:'include'
 		})
 			.then(res => res.json())
-			.then(res =>manageAuth(res))
+			.then(res =>manageAuth(res,dump))
 	}
 	const manageAuth=(val)=>{
 		if(val.result){
-		location.href=`/`
+		location.href=`${dump}?${qs}`
 		}
 	}
+	alert(dump)
 	verify()
 
 }
@@ -48,7 +51,7 @@ window.onload=()=>{
 const loginStatus =(res,btn)=>{
 	if(res.status){
 		btn.value="redirecting..."
-		location.href=`/`
+		location.href=`${dump}?${qs}`
 	}
 	else{
 		btn.value="try again"
