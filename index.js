@@ -6,15 +6,43 @@ const port = process.env.PORT || 3000;
 const {engine} = require('express-handlebars')
 const cookieParser=require('cookie-parser')
 const crypto = require('crypto')
+const {randomUUID:uuid} = require('crypto')
 const db = require("./config/database")
 const bcrypt = require("bcryptjs")
 const saltRounds=10
 const jwt = require('jsonwebtoken')
 const secret = process.env.JWT_SECRET_KEY
-
+const redis = require('redis')
+const authDB = redis.createClient()
+authDB.connect()
+authDB.on('connect',()=>{
+	console.log('redis ready')
+})
+const excludedRoutes = ['/apps/authorise','/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth']
 app.use('/static',express.static(__dirname+'/static'));
-app.set('view engine', 'hbs');
 app.use(cookieParser());
+app.use(async (req, res, next) => {
+	const url = req.originalUrl.split("?")[0]
+//	console.log(url)
+	if(excludedRoutes.includes(url)){
+		next()
+	}else{
+		const token = req.cookies.token
+		const authData = await verifyToken(token)
+		if (!authData.result){
+			if(req.method=="GET")
+				res.redirect(`http://${req.header('host')}`)
+			else
+				res.status(401).json({status:false,msg:"unauthorised access"})
+			return
+		}
+		else{
+			req.usrProf = authData.data
+			next()
+		}
+	}})
+
+app.set('view engine', 'hbs');
 app.use(express.json());                                                                           app.use(express.urlencoded({
 	extended: true
 }));
@@ -25,8 +53,8 @@ app.engine('hbs', engine({
 	partialsDir: __dirname + '/views/partials/'
 }));
 
-const generateUid = () => {
-	const uid=crypto.randomBytes(16).toString('hex')
+const generateUid = (len=16) => {
+	const uid=crypto.randomBytes(len).toString('hex')
 	return uid
 }
 
@@ -38,6 +66,84 @@ app.get('/login',(req,res)=>{
 })
 app.get('/signup',(req,res)=>{
 	res.render('home',{signupin:true,login:false,script:"signup.js"});
+})
+app.get('/apps/authorise',async (req,res)=>{
+	const data = req.query
+	const token = req.cookies.token
+	const authData = await verifyToken(token)
+	if (!authData.result){
+		data.dump='/apps/authorise'
+		const qs =new URLSearchParams(data).toString()
+		res.redirect(`/login?${qs}`)
+		return
+	}
+	else{
+		const query = `SELECT appid FROM appauth WHERE client_id = $1;`
+		const values = [data.client_id]
+		let dbRes={rows:[]}
+		try{
+			dbRes =await db.query(query,values)}
+		catch(e){
+			res.status(403).json({status:false,msg:"invalid credentials"})
+			return
+		}
+		const rows = dbRes.rows
+		if(rows.length<=0){
+			res.status(403).json({status:false,msg:"invalid credentials"})
+			return
+		}
+		const appid = rows[0].appid
+		const appDataQuery = `SELECT * FROM apps WHERE appid = $1`
+		let appData
+		try{
+			appData=await db.query(appDataQuery,[appid])
+		}catch(e){
+			res.status(403).json({status:false,msg:"invalid app credentials"})
+			return
+		}
+		const app = appData.rows[0]
+		console.log(app)
+		console.log(data)
+		if(app.redirect !== decodeURIComponent(data.redirect)){
+			res.status(403).json({status:false,msg:"invalid app credentials"})
+			return
+		}
+		const authCode=generateUid(32)
+		const retqs = {
+			code:authCode,
+			nonce:data.nonce
+		}
+		res.redirect(`${app.redirect}?${new URLSearchParams(retqs).toString()}`)
+		return
+	//	authDB.hSet(authCode,data)
+
+	}
+})
+app.post('/create-new-app',async(req,res)=>{
+	const query = `
+	INSERT INTO apps (appname,origin,redirect,uid,appid) 
+	VALUES($1,$2,$3,$4,$5)
+	RETURNING *;
+	`;
+	const appid=generateUid(16)
+	const values = [req.body.name,req.body.origin,req.body.redirect,req.usrProf.uid,appid];
+	const { rows } = await db.query(query, values)
+	const secretQuery = `
+	INSERT INTO appauth (appid,client_id,client_secret) 
+	VALUES($1,$2,$3)
+	RETURNING *;
+	`;
+	const client_id=uuid()
+	var client_secret=generateUid(32)
+	console.log(client_id)
+	console.log(client_secret)
+	await bcrypt.hash(client_secret,saltRounds).then(function(hash) {
+		client_secret=hash
+	});
+
+	const secretValues = [appid,client_id,client_secret];
+	const secretRows = await db.query(secretQuery, secretValues)
+	res.status(200).json({status:true})
 })
 app.post("/let-me-in",async (req,res)=>{
 	const query = `
