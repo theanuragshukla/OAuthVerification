@@ -18,7 +18,7 @@ authDB.connect()
 authDB.on('connect',()=>{
 	console.log('redis ready')
 })
-const excludedRoutes = ['/apps/authorise','/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth']
+const excludedRoutes = ['/apps/authorise','/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth','/exchange-token']
 app.use('/static',express.static(__dirname+'/static'));
 app.use(cookieParser());
 app.use(async (req, res, next) => {
@@ -102,8 +102,6 @@ app.get('/apps/authorise',async (req,res)=>{
 			return
 		}
 		const app = appData.rows[0]
-		console.log(app)
-		console.log(data)
 		if(app.redirect !== decodeURIComponent(data.redirect)){
 			res.status(403).json({status:false,msg:"invalid app credentials"})
 			return
@@ -113,9 +111,11 @@ app.get('/apps/authorise',async (req,res)=>{
 			code:authCode,
 			nonce:data.nonce
 		}
+
+		authDB.hSet(authCode,{appid:appid,user:authData.data.uid})
+		authDB.expire(authCode,300)
 		res.redirect(`${app.redirect}?${new URLSearchParams(retqs).toString()}`)
 		return
-	//	authDB.hSet(authCode,data)
 
 	}
 })
@@ -208,6 +208,16 @@ app.get('/checkAuth',async (req,res)=>{
 		}
 		:{}
 	})
+})
+
+app.post('/exchange-token',async (req,res)=>{
+	const code = req.body.code
+	const cid = req.body.client_id
+	const csec = req.body.client_secret
+	const authData = JSON.parse(JSON.stringify(await authDB.hGetAll(code)))
+	authDB.del(code)
+	console.log(authData)
+	res.json({status:true})
 })
 
 app.post('/checkDup', async (req,res)=>{
