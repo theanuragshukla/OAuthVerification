@@ -18,12 +18,11 @@ authDB.connect()
 authDB.on('connect',()=>{
 	console.log('redis ready')
 })
-const excludedRoutes = ['/apps/authorise','/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth','/exchange-token']
+const excludedRoutes = ['/apps/authorise','/','/login','/signup','/let-me-in','/add-new-user','/checkDup','/checkAuth','/get-id-token']
 app.use('/static',express.static(__dirname+'/static'));
 app.use(cookieParser());
 app.use(async (req, res, next) => {
 	const url = req.originalUrl.split("?")[0]
-//	console.log(url)
 	if(excludedRoutes.includes(url)){
 		next()
 	}else{
@@ -109,7 +108,8 @@ app.get('/apps/authorise',async (req,res)=>{
 		const authCode=generateUid(32)
 		const retqs = {
 			code:authCode,
-			nonce:data.nonce
+			nonce:data.nonce,
+			getBasicProfile:data.getBasicProfile
 		}
 
 		authDB.hSet(authCode,{appid:appid,user:authData.data.uid})
@@ -210,14 +210,39 @@ app.get('/checkAuth',async (req,res)=>{
 	})
 })
 
-app.post('/exchange-token',async (req,res)=>{
+app.post('/get-id-token',async (req,res)=>{
 	const code = req.body.code
 	const cid = req.body.client_id
 	const csec = req.body.client_secret
 	const authData = JSON.parse(JSON.stringify(await authDB.hGetAll(code)))
 	authDB.del(code)
-	console.log(authData)
-	res.json({status:true})
+	const query = `SELECT * FROM appauth WHERE appid = $1`
+	const values = [authData.appid]
+	const {rows} = await db.query(query,values)
+	if(rows.length<1){
+		res.status(403).json({status:false,msg:"invalid auth code"})
+		return
+	}
+	if(rows[0].client_id==cid){
+		const match =bcrypt.compareSync(csec, rows[0].client_secret)
+		if(match){
+			const usrQuery = `SELECT * FROM users WHERE uid = $1`
+			const {rows} = await db.query(usrQuery,[authData.user])
+			const usrData = rows[0]
+			const info2send = {
+				fname:usrData.fname,
+				lname:usrData.lname,
+				email:usrData.email,
+				aud:cid,
+			}
+			const idToken = jwt.sign(info2send, csec,{expiresIn:600})
+			res.status(200).json({token:idToken})
+		}else{
+			res.status(403).json({status:false,msg:"wrong client_secret"})
+		}
+	}else{
+		res.status(403).json({status:false,msg:"wrong client_id"})
+	}
 })
 
 app.post('/checkDup', async (req,res)=>{
@@ -248,9 +273,6 @@ const verifyToken = async (authToken)=>{
 		return {result:false}
 	}
 }
-
-
-
 
 http.listen(port,()=>{
 	console.log(`server started on port ${port}`);
