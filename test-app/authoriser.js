@@ -9,7 +9,7 @@ const redirect = process.env.REDIRECT
 const baseURL = process.env.ROOT
 const jwt = require('jsonwebtoken')
 
-const generateNonce = (len=4) => {
+const generateNonce = (len=16) => {
 	const uid=crypto.randomBytes(len).toString('hex')
 	return uid
 }

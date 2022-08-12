@@ -42,7 +42,8 @@ app.use(async (req, res, next) => {
 	}})
 
 app.set('view engine', 'hbs');
-app.use(express.json());                                                                           app.use(express.urlencoded({
+app.use(express.json())
+app.use(express.urlencoded({
 	extended: true
 }));
 app.engine('hbs', engine({
@@ -56,7 +57,6 @@ const generateUid = (len=16) => {
 	const uid=crypto.randomBytes(len).toString('hex')
 	return uid
 }
-
 app.get('/',(req,res)=>{
 	res.render("landing");
 })
