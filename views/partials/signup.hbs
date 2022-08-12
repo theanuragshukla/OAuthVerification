@@ -29,6 +29,9 @@
     </div>
   </form>
   <div class="form-footer">
-	  <p><a href="/login">already have an account? Login</a></p>
+	  <p><a onclick="(()=>{
+	 const qs = window.location.href.split('?')[1];
+	 location.href=`/login${qs ? '?'+qs:''}`
+	})()">already have an account? Login</a></p>
   </div>
 

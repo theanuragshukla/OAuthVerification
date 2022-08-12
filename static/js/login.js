@@ -43,7 +43,6 @@ window.onload=()=>{
 		location.href=`${dump}?${qs}`
 		}
 	}
-	alert(dump)
 	verify()
 
 }

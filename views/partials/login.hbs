@@ -17,5 +17,8 @@
   <div class="form-footer">
 <!-- 
 	  <p><a href="">forgot password?</a></p>
-	 -->  <p><a href="/signup">New User? Register</a></p>
+-->  <p><a onclick="(()=>{
+	 const qs = window.location.href.split('?')[1];
+	 location.href=`/signup${qs ? '?'+qs:''}`
+	})()">New User? Register</a></p>
   </div>
