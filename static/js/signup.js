@@ -3,6 +3,7 @@ const fname  = document.getElementById('fname')
 const lname  = document.getElementById('lname')
 const email = document.getElementById('email')
 const pass = document.getElementById('pass')
+const confirmPass = document.getElementById('confirmPass')
 const error = document.getElementById('error')
 
 const signup=async()=>{
@@ -19,24 +20,17 @@ const signup=async()=>{
 				'Accept': 'application/json, text/plain, */*',
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify( {
-				fname:fname.value,
-				lname:lname.value,
-				email:email.value,
-				pass:pass.value,
-			})
+			body: JSON.stringify(data)
 		})
 			.then(res=>res.json())
 			.then(res=>{
 				if(res.status){
-					alert('account created successfully! please login')
 					location.href='/'
 				}else{
 					alert("some error occoured")
 					location.href='/'
 				}
-			}
-			)
+			})
 	}
 	else {
 		alert("error")
@@ -62,25 +56,6 @@ const validateOnSpot =async (state) => {
 		validateStatus(resPass)
 		return resPass
 	}
-}
-
-window.onload=()=>{
-	const verify =async ()=>{
-		await fetch('/checkAuth', {
-			method: 'GET',
-			crossdomain: true,
-			withCredentials:'include'
-		})
-			.then(res => res.json())
-			.then(res =>manageAuth(res))
-	}
-	const manageAuth=(val)=>{
-		if(val.result){
-			location.href='/'
-		}
-	}
-	verify()
-
 }
 
 const validateStatus =(status)=>{
