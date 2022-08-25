@@ -176,7 +176,7 @@ app.post("/let-me-in",async (req,res)=>{
     const values = [req.body.email];
     const { rows } = await db.query(query, values);
     if(rows.length==0){
-        res.send({status:false,result:"wrong email or password"})
+        res.send({status:false,result:"Wrong email or password"})
     }else{
         const match = await bcrypt.compare(req.body.pass, rows[0].pass)
         if(match){
@@ -226,8 +226,8 @@ app.post("/add-new-user",async(req,res)=>{
     console.log(rows[0])
     const token = jwt.sign({data:uid}, secret, { expiresIn: '7d' })
     const expiryDate = new Date(Number(new Date()) + (7*24*3600000));
-    res.setHeader("Set-Cookie", `token=${token};expires=${expiryDate}; Path=/;HttpOnly`)
-    res.status(200).json({status:true})
+    res.setHeader("Set-Cookie", `token=${token};expires=${expiryDate}; Path=/;HttpOnly`).status(200).json({status:true})
+	return
 })
 app.get('/checkAuth',async (req,res)=>{
     const token = req.cookies.token

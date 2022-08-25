@@ -4,16 +4,18 @@ const lname  = document.getElementById('lname')
 const email = document.getElementById('email')
 const pass = document.getElementById('pass')
 const confirmPass = document.getElementById('confirmPass')
-const error = document.getElementById('error')
-
 const signup=async()=>{
 	const data = {
 		fname:fname.value,
 		lname:lname.value,
 		email:email.value,
 		pass:pass.value,
+		confirmPass:confirmPass.value
+	}	
+	if(await validateData(data) === false){
+		return
 	}
-	if(await checkAll(data)){
+	if(checkAll(data)){
 		fetch('/add-new-user', {
 			method: 'POST',
 			headers: {
@@ -35,29 +37,23 @@ const signup=async()=>{
 	else {
 		alert("error")
 	}
-
-
 }
-const validateOnSpot =async (state) => {
-	if(state==1){
-		const res = checkName(fname.value)
-		error.innerHTML=res ? "" : "enter a valid name"
-		validateStatus(res)
-		return res
+const validateData =async (data) => {
+	const {fname,lname, email, pass, confirmPass} = data
+	const errors = {
+		fname:checkName(fname),
+		lname:checkName(lname),
+		email:checkEmail(email),
+		pass:checkPass(pass),
+		confirmPass:(pass===confirmPass)
 	}
-	else if(state==2){
-		const resEmail = checkPass(email.value)
-		error.innerHTML="enter a valid email"
-		validateStatus(resEmail)
-		return resEmail
-	}else if(state==3){
-		const resPass = checkPass(pass.value)
-		error.innerHTML=resPass ? "" : "enter a valid password"
-		validateStatus(resPass)
-		return resPass
-	}
-}
-
-const validateStatus =(status)=>{
-	error.style.display=!status ? "initial" :"none"
+	Object.keys(errors).map(key=>{
+		const e = document.querySelector(`[data-error="${key}"]`)
+		if(errors[key]===true){
+			e.style.visibility="hidden"
+		}else{
+			e.style.visibility="visible"
+		}
+	})
+	return !Object.values(errors).includes(false)
 }
