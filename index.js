@@ -176,7 +176,7 @@ app.post("/let-me-in",async (req,res)=>{
     const values = [req.body.email];
     const { rows } = await db.query(query, values);
     if(rows.length==0){
-        res.send({status:false,result:"Wrong email or password"})
+        res.send({status:false,msg:"Wrong email or password"})
     }else{
         const match = await bcrypt.compare(req.body.pass, rows[0].pass)
         if(match){
@@ -187,7 +187,7 @@ app.post("/let-me-in",async (req,res)=>{
             return
         }
         else{
-            res.send({status:false,result:"wrong username or password"})
+            res.send({status:false,msg:"wrong username or password"})
         }
     }
 })
@@ -195,12 +195,15 @@ app.post("/add-new-user",async(req,res)=>{
 	const {email,pass,fname,lname} = req.body
 	if(!checkEmail(email)){
         res.status(400).json({status:false,msg:"invalid email"})
+		return
 	}
 	if(!checkPass(pass)){
         res.status(400).json({status:false,msg:"unsafe password"})
+		return
 	}
 	if(!checkName(fname)){
         res.status(400).json({status:false,msg:"invalid name"})
+		return
 	}
     const emailquery = `
     SELECT * FROM users WHERE email = $1;
@@ -208,7 +211,7 @@ app.post("/add-new-user",async(req,res)=>{
     const emailvalues =[email];
     const dupEmail = await db.query(emailquery, emailvalues);
     if( dupEmail.rows.length!=0){
-        res.send({status:false,email:true,result:"email exists"})
+        res.send({status:false,email:true,msg:"email exists"})
         return
     }
     const query = `
@@ -226,8 +229,8 @@ app.post("/add-new-user",async(req,res)=>{
     console.log(rows[0])
     const token = jwt.sign({data:uid}, secret, { expiresIn: '7d' })
     const expiryDate = new Date(Number(new Date()) + (7*24*3600000));
-    res.setHeader("Set-Cookie", `token=${token};expires=${expiryDate}; Path=/;HttpOnly`).status(200).json({status:true})
-	return
+    res.setHeader("Set-Cookie", `token=${token};expires=${expiryDate}; Path=/;HttpOnly`)
+		res.status(200).json({status:true})
 })
 app.get('/checkAuth',async (req,res)=>{
     const token = req.cookies.token

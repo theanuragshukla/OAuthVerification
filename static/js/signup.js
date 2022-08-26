@@ -29,8 +29,7 @@ const signup=async()=>{
 				if(res.status){
 					location.href='/'
 				}else{
-					alert("some error occoured")
-					location.href='/'
+					alert(res.msg)
 				}
 			})
 	}
