@@ -16,7 +16,7 @@ const signup=async()=>{
 		return
 	}
 	if(checkAll(data)){
-		fetch('/add-new-user', {
+		fetch('/auth/add-new-user', {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json, text/plain, */*',

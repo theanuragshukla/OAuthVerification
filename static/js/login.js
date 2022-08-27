@@ -12,7 +12,7 @@ async function login(e){
 		e.value="try again"
 		return
 	}
-	fetch('/let-me-in', {
+	fetch('/auth/let-me-in', {
 		method: 'POST',
 		headers: {
 			'Accept': 'application/json, text/plain, */*',
@@ -22,7 +22,6 @@ async function login(e){
 	})
 		.then(res=>res.json())
 		.then(res=>loginStatus(res,e))
-
 }
 
 window.onload=()=>{

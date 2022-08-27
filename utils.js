@@ -1,61 +1,51 @@
-const checkSpaces=(str, exact=true)=> {
-        var len = str.replace(/\s/g, '').length
-        return (exact ? ((len === str.length) && len !== 0): len !== 0)
+const crypto = require('crypto')
+const db = require("./config/database")
+const secret = process.env.JWT_SECRET_KEY
+const jwt = require('jsonwebtoken')
+
+const excludedRoutes = ['/apps/authorise','/auth/let-me-in','/auth/add-new-user','/auth/checkDup','/auth/checkAuth','/apps/get-id-token']
+
+const verifyToken = async (authToken)=>{
+	try{
+		const payload = jwt.verify(authToken, secret)
+		const query = `SELECT * FROM users WHERE uid = $1;`;
+		const values = [payload.data];
+		const { rows } = await db.query(query, values)
+		if(rows.length==0){
+			return {result:false}
+		}else{
+			return {result:true,data:rows[0],uid:payload.data}
+		}
+	}catch(e){
+		return {result:false}
+	}
+}
+const generateUid = (len=16) => {
+	const uid=crypto.randomBytes(len).toString('hex')
+	return uid
 }
 
-const checklen=(min,max,str)=>{
-        if(!checkSpaces(str, true)){
-                return false;
-        }else{
-                if(!(str.length<=max && str.length>=min)){
-                        return false;
-                }else{
-                        return true;
-                }
-        }
-}
+const resolveToken = async (req, res, next) => {
+	const url = req.originalUrl.split("?")[0]
+	if(excludedRoutes.includes(url)){
+		next()
+	}else{
+		const token = req.cookies.token
+		const authData = await verifyToken(token)
+		if (!authData.result){
+			if(req.method=="GET"){
+				res.redirect(`http://${req.header('host')}/auth/login`)
+			} else{
+				res.status(401).json({status:false,msg:"unauthorised access"})
+			}
+			return
+		}
+		else{
+			req.usrProf = authData.data
+			next()
+		}
+	}}
 
-const checkName=(str)=>{
-        return checklen(3, 50, str)
-}
-
-const validEmail=(str)=>{
-        const atposition = str.indexOf("@");
-        const dotposition = str.lastIndexOf(".");
-        const wrongEmail = (atposition < 1 || dotposition < atposition+2 || dotposition+2 >= str.length || str.length <= 5);
-        return !wrongEmail
-}
-
-const checkEmail=(str)=>{
-        return (checklen(8, 100, str) && validEmail(str) ? true : false )
-}
-
-const checkUser=(str)=>{
-        const valid = /^[a-z0-9_\.]+$/.test(str);
-        return (valid && checklen(8, 20, str) ? true : false);
-}
-const checkPass=(str)=>{
-                return (checklen(8, 128, str)?true : false);
-}
-
-const checkAll=(arr)=>{
-        const passError = !checkPass(arr.pass)
-        const nameError = !checkName(arr.fname)
-        const emailError = !checkEmail(arr.email)
-        const userError = !checkUser(arr.user)
-        if(passError || nameError || emailError || userError){
-                return false
-        }else{
-                return true
-        }
-}
-
-module.exports={
-	checkUser,
-	checkEmail,
-	checkName,
-	checkPass,
-	checkAll,
-	checklen,
-	checkSpaces
+module.exports = {
+	verifyToken, generateUid, resolveToken
 }
