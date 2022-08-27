@@ -6,6 +6,12 @@ const {resolveToken, generateUid} = require('../utils')
 const db = require("../config/database")
 const bcrypt = require("bcryptjs")
 const saltRounds=10
+const redis = require('redis')
+const authDB = redis.createClient()
+authDB.connect()
+authDB.on('connect',()=>{
+	console.log('redis ready')
+})
 
 router.use(resolveToken)
 
