@@ -1,21 +1,33 @@
 <div class="form-wrapper addNewApp">
-<h1>Add new Application</h1>
-<form>
-	<div class="form-item">
-      <label for="appName"></label>
-      <input type="text" name="appName" id='appName' required="required" placeholder="Application name" autocomplete='false'></input>
-    </div>
-<div class="form-item">
-      <label for="trustedOrigin"></label>
-      <input type="text" name="trustedOrigin" id='trustedOrigin'  placeholder="Authorised Origin" autocomplete='false'></input>
-    </div>
-<div class="form-item">
-      <label for="redirectUri"></label>
-      <input type="text" name="redirectUri" id='redirectUri' required="required" placeholder="Redirct URI" autocomplete='false'></input>
-    </div>
-<div class="button-panel">
-      <input type="button" id="createBtn" class="button" onclick="createApp(this)" title="Create" value="Create"></input>
-    </div>
-</form>
+	<h1>Add new Application</h1>
+	<form>
+		<div class="form-item">
+			<label for="appName"></label>
+			<input type="text" name="appName" id='appName' required="required" placeholder="Application name" autocomplete='false'></input>
+		</div>
+		<div data-error = "name" class="errorMsg">
+			{{>error}}	
+			<span>enter a valid name</span>
+		</div>
+		<div class="form-item">
+			<label for="trustedOrigin"></label>
+			<input type="text" name="trustedOrigin" id='trustedOrigin'  placeholder="Authorised Origin" autocomplete='false'></input>
+		</div>
+		<div data-error = "origin" class="errorMsg">
+			{{>error}}	
+			<span>enter a valid URL</span>
+		</div>
+		<div class="form-item">
+			<label for="redirectUri"></label>
+			<input type="text" name="redirectUri" id='redirectUri' required="required" placeholder="Redirct URI" autocomplete='false'></input>
+		</div>
+		<div data-error = "redirect" class="errorMsg">
+			{{>error}}	
+			<span>enter a valid URL</span>
+		</div>
+		<div class="button-panel">
+			<input type="button" id="createBtn" class="button" onclick="createApp(this)" title="Create" value="Create"></input>
+		</div>
+	</form>
 </div>
 <script defer src="/static/js/newApp.js"></script>

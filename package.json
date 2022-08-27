@@ -26,7 +26,8 @@
 		"express-handlebars": "^6.0.6",
 		"jsonwebtoken": "^8.5.1",
 		"pg": "^8.7.3",
-		"redis": "^4.2.0"
+		"redis": "^4.2.0",
+		"some-random-form-validator": "^1.0.2"
 	},
 	"devDependencies": {
 		"nodemon": "^2.0.19"

@@ -3,86 +3,56 @@ const fname  = document.getElementById('fname')
 const lname  = document.getElementById('lname')
 const email = document.getElementById('email')
 const pass = document.getElementById('pass')
-const error = document.getElementById('error')
-
+const confirmPass = document.getElementById('confirmPass')
 const signup=async()=>{
 	const data = {
 		fname:fname.value,
 		lname:lname.value,
 		email:email.value,
 		pass:pass.value,
+		confirmPass:confirmPass.value
+	}	
+	if(await validateData(data) === false){
+		return
 	}
-	if(await checkAll(data)){
-		fetch('/add-new-user', {
+	if(checkAll(data)){
+		fetch('/auth/add-new-user', {
 			method: 'POST',
 			headers: {
 				'Accept': 'application/json, text/plain, */*',
 				'Content-Type': 'application/json'
 			},
-			body: JSON.stringify( {
-				fname:fname.value,
-				lname:lname.value,
-				email:email.value,
-				pass:pass.value,
-			})
+			body: JSON.stringify(data)
 		})
 			.then(res=>res.json())
 			.then(res=>{
 				if(res.status){
-					alert('account created successfully! please login')
 					location.href='/'
 				}else{
-					alert("some error occoured")
-					location.href='/'
+					alert(res.msg)
 				}
-			}
-			)
+			})
 	}
 	else {
 		alert("error")
 	}
-
-
 }
-const validateOnSpot =async (state) => {
-	if(state==1){
-		const res = checkName(fname.value)
-		error.innerHTML=res ? "" : "enter a valid name"
-		validateStatus(res)
-		return res
+const validateData =async (data) => {
+	const {fname,lname, email, pass, confirmPass} = data
+	const errors = {
+		fname:checkName(fname),
+		lname:checkName(lname),
+		email:checkEmail(email),
+		pass:checkPass(pass),
+		confirmPass:(pass===confirmPass)
 	}
-	else if(state==2){
-		const resEmail = checkPass(email.value)
-		error.innerHTML="enter a valid email"
-		validateStatus(resEmail)
-		return resEmail
-	}else if(state==3){
-		const resPass = checkPass(pass.value)
-		error.innerHTML=resPass ? "" : "enter a valid password"
-		validateStatus(resPass)
-		return resPass
-	}
-}
-
-window.onload=()=>{
-	const verify =async ()=>{
-		await fetch('/checkAuth', {
-			method: 'GET',
-			crossdomain: true,
-			withCredentials:'include'
-		})
-			.then(res => res.json())
-			.then(res =>manageAuth(res))
-	}
-	const manageAuth=(val)=>{
-		if(val.result){
-			location.href='/'
+	Object.keys(errors).map(key=>{
+		const e = document.querySelector(`[data-error="${key}"]`)
+		if(errors[key]===true){
+			e.style.visibility="hidden"
+		}else{
+			e.style.visibility="visible"
 		}
-	}
-	verify()
-
-}
-
-const validateStatus =(status)=>{
-	error.style.display=!status ? "initial" :"none"
+	})
+	return !Object.values(errors).includes(false)
 }

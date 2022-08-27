@@ -31,12 +31,7 @@ const checkEmail=(str)=>{
 }
 
 const checkPass=(str)=>{
-        var regularExpression = /^(?=.*[0-9])(?=.*[!@#$%^&*])[a-zA-Z0-9!@#$%^&*]{6,16}$/;
-        if(regularExpression.test(str)){
                 return (checklen(8, 128, str)?true : false);
-        }else{
-                return false
-        }
 }
 
 const checkAll=(arr)=>{

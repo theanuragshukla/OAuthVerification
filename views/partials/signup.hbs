@@ -1,34 +1,54 @@
 <h1>Create an Account</h1>
-<div class="form-item">
-	<div id="error" class="error"></div>
-</div>
 <form>
-	<div class="form-item">
-      <label for="fname"></label>
-      <input onkeydown="validateOnSpot(1)" type="text" name="fname" id='fname' required="required" placeholder="First name" autocomplete='false'></input>
-    </div>
-<div class="form-item">
-      <label for="lname"></label>
-      <input type="text" name="lname" id='lname'  placeholder="Last name" autocomplete='false'></input>
-    </div>
-<div class="form-item">
-      <label for="email"></label>
-      <input onkeydown="validateOnSpot(2)" type="email" name="email" id='email' required="required" placeholder="Email" autocomplete='false'></input>
-    </div>
-   <div class="form-item">
-      <label for="pass"></label>
-      <input onkeydown="validateOnSpot(3)" type="password" name="pass" id='pass' required="required" placeholder="Password" autocomplete='false'></input>
-    </div>
-<div class="form-item">
-      <label for="confirmPass"></label>
-      <input type="password" name="confirmPass" id='confirmPass' required="required" placeholder="confirm password" autocomplete='false'></input>
-    </div>
 
-   <div class="button-panel">
-      <input type="button" id="signupBtn" class="button" onclick="signup()" title="Sign Up" value="Sign Up"></input>
-    </div>
-  </form>
-  <div class="form-footer">
-	  <p><a href="">already have an account? Login</a></p>
-  </div>
+	<div class="form-item">
+		<label for="fname"></label>
+		<input type="text" name="fname" id='fname' required="required" placeholder="First name" autocomplete='false'></input>
+	</div>
+	<div data-error = "fname" class="errorMsg">
+		{{>error}}	
+		<span>enter a valid first name</span>
+	</div>
+	<div class="form-item">
+		<label for="lname"></label>
+		<input type="text" name="lname" id='lname'  placeholder="Last name" autocomplete='false'></input>
+	</div>
+	<div data-error = "lname" class="errorMsg">
+		{{>error}}	
+		<span>enter a valid last name</span>
+	</div>
+	<div class="form-item">
+		<label for="email"></label>
+		<input type="email" name="email" id='email' required="required" placeholder="Email" autocomplete='false'></input>
+	</div>
+	<div data-error = "email" class="errorMsg">
+		{{>error}}	
+		<span>enter a valid email address</span>
+	</div>
+	<div class="form-item">
+		<label for="pass"></label>
+		<input type="password" name="pass" id='pass' required="required" placeholder="Password" autocomplete='false'></input>
+	</div>
+	<div data-error = "pass" class="errorMsg">
+		{{>error}}	
+		<span>Use 8 characters or more for your password</span>
+	</div>
+	<div class="form-item">
+		<label for="confirmPass"></label>
+		<input type="password" name="confirmPass" id='confirmPass' required="required" placeholder="confirm password" autocomplete='false'></input>
+	</div>
+	<div data-error = "confirmPass" class="errorMsg">
+		{{>error}}	
+		<span>passwords didn't match. Try again</span>
+	</div>
+	<div class="button-panel">
+		<input type="button" id="signupBtn" class="button" onclick="signup()" title="Sign Up" value="Sign Up"></input>
+	</div>
+</form>
+<div class="form-footer">
+	<p><a onclick="(()=>{
+		  const qs = window.location.href.split('?')[1];
+		  location.href=`/auth/login${qs ? '?'+qs:''}`
+		  })()">already have an account? Login</a></p>
+</div>
 
