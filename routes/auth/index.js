@@ -2,10 +2,10 @@ const express = require('express')
 const router = express.Router()
 const jwt = require('jsonwebtoken')
 const bcrypt = require("bcryptjs")
-const db = require("../config/database")
+const db = require("../../config/database")
 const saltRounds=10
 const secret = process.env.JWT_SECRET_KEY
-const {verifyToken, generateUid} = require('../utils')
+const {verifyToken, generateUid} = require('../../utils')
 const {checkPass, checkName, checkEmail} = require('some-random-form-validator');
 
 router.get('/login',async (req,res)=>{
