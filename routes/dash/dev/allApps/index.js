@@ -1,8 +1,6 @@
 const express = require('express')
+const {getAllApps} = require('../../../../controllers/devController')
 const router = express.Router()
 
-router.get('/', (req, res)=>{
-	res.render('allApps')
-})
-
+router.get('/', getAllApps)
 module.exports = router
