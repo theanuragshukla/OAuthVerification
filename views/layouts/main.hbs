@@ -9,6 +9,12 @@
 		<link rel="stylesheet" href="/static/css/nav.css">
 		<link rel="stylesheet" href="/static/css/form.css">
 		<script defer src="/static/js/utils.js"></script>
+		{{#if style}}
+		<link rel="stylesheet" href="/static/css/{{style}}">
+		{{/if}}
+		{{#if script}}
+		<script src="/static/js/{{script}}" defer></script>
+		{{/if}}
 	</head>
 	<body>
 		<div class="super">

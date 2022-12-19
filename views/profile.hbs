@@ -1,0 +1,28 @@
+<div class="profile">
+	<div class="intro">
+		<h2>
+			welcome {{data.fname}}
+		</h2>
+		<div class="list">
+			{{#each data}}
+			<div class="item">
+				<div class="key">
+					{{@key}}
+				</div>
+				<div class="value">
+					{{this}}
+				</div>
+			</div>
+			{{/each}}
+		</div>
+	<div class="btnGroup">
+	<button class="button devBtn" onclick="(()=>location.href='/dev')()">Add Details</button>
+		<button class="button devBtn" onclick="(()=>location.href='/dev')()">Dev profile</button>
+</div>
+
+		<h2>3rd party Apps and Websites</h2>
+
+	</div>
+</div>
+
+

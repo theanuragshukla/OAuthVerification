@@ -1,5 +1,3 @@
-const express = require('express')
-const router = express.Router()
 const jwt = require('jsonwebtoken')
 const bcrypt = require("bcryptjs")
 const db = require("../config/database")
@@ -8,7 +6,7 @@ const secret = process.env.JWT_SECRET_KEY
 const {verifyToken, generateUid} = require('../utils')
 const {checkPass, checkName, checkEmail} = require('some-random-form-validator');
 
-router.get('/login',async (req,res)=>{
+const loginGet = async (req,res)=>{
 	const qs = req.query
 	const dump =qs && qs.dump ? (qs.dump) : '/'
 	const token = req.cookies.token
@@ -18,8 +16,9 @@ router.get('/login',async (req,res)=>{
 		return
 	}
 	res.render('home',{signupin:true,login:true,script:"login.js"});
-})
-router.get('/signup',async (req,res)=>{
+}
+
+const signupGet = async (req,res)=>{
 	const qs = req.query
 	const dump =qs && qs.dump ? (qs.dump) :  '/'
 	const token = req.cookies.token
@@ -29,9 +28,8 @@ router.get('/signup',async (req,res)=>{
 		return
 	}
 	res.render('home',{signupin:true,login:false,script:"signup.js"});
-})
-
-router.post("/let-me-in",async (req,res)=>{
+}
+const loginPost = async (req,res)=>{
 	const query = `SELECT * FROM users WHERE email = $1;`;
 	const values = [req.body.email];
 	const { rows } = await db.query(query, values);
@@ -50,8 +48,8 @@ router.post("/let-me-in",async (req,res)=>{
 			res.send({status:false,msg:"wrong username or password"})
 		}
 	}
-})
-router.post("/add-new-user",async(req,res)=>{
+}
+const signupPost = async(req,res)=>{
 	const {email,pass,fname,lname} = req.body
 	if(!checkEmail(email)){
 		res.status(400).json({status:false,msg:"invalid email"})
@@ -91,8 +89,19 @@ router.post("/add-new-user",async(req,res)=>{
 	const expiryDate = new Date(Number(new Date()) + (7*24*3600000));
 	res.setHeader("Set-Cookie", `token=${token};expires=${expiryDate}; Path=/;HttpOnly`)
 	res.status(200).json({status:true})
-})
-router.get('/checkAuth',async (req,res)=>{
+}
+const checkDup =  async (req,res)=>{
+	const toCheck=req.body.email ? "email" : "username"
+	const query = `SELECT * FROM users WHERE ${toCheck} = $1;`;
+	const value = [req.body.data];
+	const dups = await db.query(query, value);
+	if( dups.rows.length!=0){
+		res.status(200).send({status:false})
+		return
+	}else 
+		res.status(200).send({status:true})
+}
+const checkAuth = async (req,res)=>{
 	const token = req.cookies.token
 	const authData = await verifyToken(token)
 	res.status(200).json({result:authData.result,data:
@@ -105,17 +114,13 @@ router.get('/checkAuth',async (req,res)=>{
 		}
 		:{}
 	})
-})
-router.post('/checkDup', async (req,res)=>{
-	const toCheck=req.body.email ? "email" : "username"
-	const query = `SELECT * FROM users WHERE ${toCheck} = $1;`;
-	const value = [req.body.data];
-	const dups = await db.query(query, value);
-	if( dups.rows.length!=0){
-		res.status(200).send({status:false})
-		return
-	}else 
-		res.status(200).send({status:true})
-})
+}
 
-module.exports = router
+module.exports = {
+	loginGet,
+	loginPost,
+	signupGet,
+	signupPost,
+	checkDup,
+	checkAuth
+}
