@@ -1,0 +1,60 @@
+.profile{
+	width: 100%;
+	overflow: hidden;
+}
+.intro{
+	max-width: min(800px, 90%);
+	height: auto;
+	display: flex;
+	justify-content: flex-start;
+	flex-direction: column;
+	align-items: center;
+	gap:20px;
+	padding: 20px;
+	overflow: hidden;
+	background-color: rgba(0,0,0,0.5);
+	margin:0 auto;
+}
+.intro h2{
+	width: 100%;
+	text-align: center;
+	font-size: 2rem;
+}
+
+.list{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	gap:10px;
+	width: 100%;
+}
+
+.item {
+	width: 100%;
+	min-height: 50px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 1.5rem;
+	text-align: center;
+}
+.item .key{
+	width: 50%;
+	height: 100%;
+}
+.item .value {
+	width: 50%;
+	height: auto;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+.devBtn{
+	min-height: 50px;
+	padding: 10px;
+	font-size: 1.2rem;
+	background: #4caf50;
+	border-radius: 8px;
+	border: none;
+}
+

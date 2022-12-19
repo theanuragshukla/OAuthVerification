@@ -9,6 +9,14 @@
 			{{>error}}	
 			<span>enter a valid name</span>
 		</div>
+	<div class="form-item">
+			<label for="homepage"></label>
+			<input type="text" name="homepage" id='homepage' required="required" placeholder="App's Homepage" autocomplete='false'></input>
+		</div>
+		<div data-error = "homepage" class="errorMsg">
+			{{>error}}	
+			<span>enter a valid URL</span>
+		</div>
 		<div class="form-item">
 			<label for="trustedOrigin"></label>
 			<input type="text" name="trustedOrigin" id='trustedOrigin'  placeholder="Authorised Origin" autocomplete='false'></input>

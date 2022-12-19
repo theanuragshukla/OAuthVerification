@@ -1,13 +1,16 @@
+
 const createApp=async(e)=>{
 	e.value="wait..."
 	const name = document.getElementById('appName')
+	const homepage = document.getElementById('homepage')
 	const origin = document.getElementById('trustedOrigin')
 	const redirect = document.getElementById('redirectUri')
 
 	const data = {
 		name:name.value,
 		origin:origin.value,
-		redirect:redirect.value
+		redirect:redirect.value, 
+		homepage:homepage.value
 	}
 	if(await validateData(data) === false){
 		e.value='Try again'
@@ -48,11 +51,12 @@ const createApp=async(e)=>{
 		})
 }
 const validateData =async (data) => {
-	const {name,redirect,origin} = data
+	const {name,redirect,origin, homepage} = data
 	const errors = {
 		name:name!=null && name!=undefined && checkName(name),
 		redirect:redirect!=null && redirect!=undefined && checklen(6,200,redirect),
 		origin:origin!=null && origin!=undefined && checklen(6,200,origin),
+		homepage:homepage!=null && homepage!=undefined && checklen(6, 200, homepage)
 	}
 	Object.keys(errors).map(key=>{
 		const e = document.querySelector(`[data-error="${key}"]`)

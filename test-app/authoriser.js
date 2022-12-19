@@ -3,7 +3,7 @@ const crypto = require('crypto')
 const axios = require('axios')
 const CLIENT_ID=process.env.CLIENT_ID
 const CLIENT_SECRET=process.env.CLIENT_SECRET
-const AUTH_SERVER_URL='http://localhost:3000/get-id-token'
+const AUTH_SERVER_URL='http://localhost:3000/apps/get-id-token'
 const AUTH_URL = "http://localhost:3000/apps/authorise"
 const redirect = process.env.REDIRECT
 const baseURL = process.env.ROOT
@@ -41,10 +41,11 @@ exports.getAuthURL = async(res) => {
 		client_id:CLIENT_ID,
 		redirect :`${baseURL}${redirect}`,
 		nonce : nonce,
-		getBasicProfile:true
+		getBasicProfile:true,
+		scopes:["fname", "lname", "email"]
 	}
-	var expiryDate = new Date(Number(new Date()) + 300000);
-	res.setHeader("Set-Cookie", `nonce=${nonce};expires=${expiryDate}; Path=/;HttpOnly`)
+	var expiryDate = new Date(Number(new Date()) + 30000);
+	res.setHeader("Set-Cookie", `nonce=${nonce};expires=${expiryDate}; Path=/;httpOnly`)
 	let url = `${AUTH_URL}?${new URLSearchParams(data).toString()}`
 	url=encodeURI(url)
 	res.redirect(url)
